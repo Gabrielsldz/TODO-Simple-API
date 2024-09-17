@@ -3,6 +3,7 @@ package com.example.todosimple.services;
 import com.example.todosimple.models.Task;
 import com.example.todosimple.models.User;
 import com.example.todosimple.models.enums.ProfileEnum;
+import com.example.todosimple.models.projection.TaskProjection;
 import com.example.todosimple.repositories.TaskRepository;
 import com.example.todosimple.security.UserSpringSecurity;
 import com.example.todosimple.services.exceptions.AuthorizationException;
@@ -35,7 +36,7 @@ public class TaskService {
         return task;
     }
 
-    public List<Task> findAllByUser() {
+    public List<TaskProjection> findAllByUser() {
         UserSpringSecurity userSpringSecurity = UserService.authenticated();
         if (Objects.isNull(userSpringSecurity)) {
             throw new AuthorizationException("Acesso negado!");
@@ -49,7 +50,7 @@ public class TaskService {
         if (Objects.isNull(userSpringSecurity)) {
             throw new AuthorizationException("Acesso negado!");
         }
-        User user = this.userService.findByid(userSpringSecurity.getId());
+        User user = this.userService.findById(userSpringSecurity.getId());
         obj.setId(null);
         obj.setUser(user);
         obj = this.taskRepository.save(obj);
@@ -75,13 +76,12 @@ public class TaskService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Task> ReturnAllTasks() {
-        // Remover a validacao desnecessaria abaixo
+    public List<TaskProjection> ReturnAllTasks() {
         UserSpringSecurity userSpringSecurity = UserService.authenticated();
-        if(Objects.isNull(userSpringSecurity) || !userSpringSecurity.hasRole(ProfileEnum.ADMIN)){
+        if (Objects.isNull(userSpringSecurity) || !userSpringSecurity.hasRole(ProfileEnum.ADMIN)) {
             throw new AuthorizationException("Acesso negado!");
         }
-        return this.taskRepository.findAll();
+        return this.taskRepository.findAllTaskProjections();
     }
 
     private Boolean userHasTask(UserSpringSecurity userSpringSecurity, Task task) {

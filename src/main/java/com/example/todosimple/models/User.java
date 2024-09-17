@@ -4,11 +4,11 @@ package com.example.todosimple.models;
 import com.example.todosimple.models.enums.ProfileEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,17 +20,11 @@ import java.util.stream.Collectors;
 @Table(name = User.TABLE_NAME)
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 public class User {
     public static final String TABLE_NAME = "user";
 
-    public interface CreateUser {
-    }
 
-    public interface UpdateUser {
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,16 +33,15 @@ public class User {
 
 
     @Column(name = "username", length = 100, nullable = false, unique = true)
-    @NotNull(groups = CreateUser.class)
-    @NotEmpty(groups = CreateUser.class)
-    @Size(min = 3, max = 100, groups = CreateUser.class)
+
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 100)
     private String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull(groups = {CreateUser.class, UpdateUser.class})
-    @NotEmpty(groups = {CreateUser.class, UpdateUser.class})
+    @NotBlank(message = "Password is required")
     @Column(name = "password", length = 100, nullable = false)
-    @Size(min = 8, max = 100, groups = {CreateUser.class, UpdateUser.class})
+    @Size(min = 8, max = 100)
     private String password;
 
 

@@ -1,6 +1,7 @@
 package com.example.todosimple.controllers;
 
 import com.example.todosimple.models.Task;
+import com.example.todosimple.models.projection.TaskProjection;
 import com.example.todosimple.services.TaskService;
 import com.example.todosimple.services.UserService;
 import jakarta.validation.Valid;
@@ -49,14 +50,14 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/user")
-    public ResponseEntity<List<Task>> findAllByUser(){
-        List<Task> list = this.taskService.findAllByUser();
+    public ResponseEntity<List<TaskProjection>> findAllByUser(){
+        List<TaskProjection> list = this.taskService.findAllByUser();
         return ResponseEntity.ok().body(list);
     }
 
     @GetMapping({"AllTasks"})
-    public ResponseEntity<List<Task>> findAll(){
-        List<Task> list = this.taskService.ReturnAllTasks();
+    public ResponseEntity<List<TaskProjection>> findAll(){
+        List<TaskProjection> list = this.taskService.ReturnAllTasks();
         return ResponseEntity.ok().body(list);
     }
 }
