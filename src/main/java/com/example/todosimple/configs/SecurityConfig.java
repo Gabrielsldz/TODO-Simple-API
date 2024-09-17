@@ -1,5 +1,7 @@
 package com.example.todosimple.configs;
 
+import com.example.todosimple.security.JWTAuthenticationFilter;
+import com.example.todosimple.security.JWTAuthorizationFilter;
 import com.example.todosimple.security.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -59,8 +61,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests()  // Atualizado para authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll() // requestMatchers substitui antMatchers
                 .requestMatchers(PUBLIC_MATCHERS).permitAll() // URLs públicas
-                .anyRequest().authenticated(); // Qualquer outra requisição precisa estar autenticada
+                .anyRequest().authenticated().and().authenticationManager(authenticationManager); // Qualquer outra requisição precisa estar autenticada
 
+        http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, jwtUtil)); // Adiciona o filtro de autenticação JWT
+        http.addFilter(new JWTAuthorizationFilter(this.authenticationManager, jwtUtil, this.userDetailsService)); // Adiciona o filtro de autorização JWT
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Sessões stateless para JWT
         return http.build();
