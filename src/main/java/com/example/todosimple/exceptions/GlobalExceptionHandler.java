@@ -1,6 +1,7 @@
 package com.example.todosimple.exceptions;
 
 
+import com.example.todosimple.services.exceptions.AuthorizationException;
 import com.example.todosimple.services.exceptions.DataBindingViolationException;
 import com.example.todosimple.services.exceptions.ObjectNotFoundException;
 import jakarta.servlet.ServletException;
@@ -29,6 +30,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.Objects;
 
 @Slf4j(topic="GLOBAL_EXCEPTION_HANDLER")
@@ -118,6 +120,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
         log.error(errorMessage, exception);
         return buildErrorResponse(exception, errorMessage, HttpStatus.CONFLICT, request);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleAccessDeniedException(
+            AccessDeniedException exception,
+            WebRequest request) {
+        String errorMessage = exception.getMessage();
+        log.error(errorMessage, exception);
+        return buildErrorResponse(exception, errorMessage, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleAuthorizationException(
+            AuthorizationException exception,
+            WebRequest request) {
+        String errorMessage = exception.getMessage();
+        log.error(errorMessage, exception);
+        return buildErrorResponse(exception, errorMessage, HttpStatus.FORBIDDEN, request);
+    }
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<Object> handleAuthenticationException(
+            AuthenticationException exception,
+            WebRequest request) {
+        String errorMessage = exception.getMessage();
+        log.error(errorMessage, exception);
+        return buildErrorResponse(exception, errorMessage, HttpStatus.UNAUTHORIZED, request);
+    }
+
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

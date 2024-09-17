@@ -6,6 +6,8 @@ import com.example.todosimple.models.User;
 import com.example.todosimple.models.enums.ProfileEnum;
 import com.example.todosimple.repositories.TaskRepository;
 import com.example.todosimple.repositories.UserRepository;
+import com.example.todosimple.security.UserSpringSecurity;
+import com.example.todosimple.services.exceptions.AuthorizationException;
 import com.example.todosimple.services.exceptions.DataBindingViolationException;
 import com.example.todosimple.services.exceptions.ObjectNotFoundException;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +33,13 @@ public class UserService {
     private TaskRepository taskRepository;
 
     public User findByid(Long id) {
+        UserSpringSecurity userSpringSecurity = authenticated();
+        if (!Objects.nonNull(userSpringSecurity) || !userSpringSecurity.hasRole(ProfileEnum.ADMIN) && !id.equals(userSpringSecurity.getId())){
+            throw new AuthorizationException("Acesso negado!");
+        }
+
         Optional<User> user = this.userRepository.findById(id);
+
         return user.orElseThrow(() -> new ObjectNotFoundException("User not found! Id: " + id + ", Tipo: " + User.class.getName()));
 
 
@@ -61,5 +70,13 @@ public class UserService {
             throw new DataBindingViolationException("Impossivel excluir, existem entidades relacionadas");
         }
 
+    }
+    public static UserSpringSecurity authenticated(){
+        try{
+            return (UserSpringSecurity) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 }
